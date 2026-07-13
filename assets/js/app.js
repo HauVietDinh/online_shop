@@ -26,10 +26,29 @@ import {hooks as colocatedHooks} from "phoenix-colocated/online_shop"
 import topbar from "../vendor/topbar"
 
 const csrfToken = document.querySelector("meta[name='csrf-token']").getAttribute("content")
+const hooks = {
+  ...colocatedHooks,
+  AutoDismissFlash: {
+    mounted() {
+      const timeoutMs = parseInt(this.el.dataset.autoDismissMs || "3000", 10)
+      this.dismissTimer = setTimeout(() => {
+        if (this.el.isConnected) {
+          this.el.click()
+        }
+      }, timeoutMs)
+    },
+    destroyed() {
+      if (this.dismissTimer) {
+        clearTimeout(this.dismissTimer)
+      }
+    },
+  },
+}
+
 const liveSocket = new LiveSocket("/live", Socket, {
   longPollFallbackMs: 2500,
   params: {_csrf_token: csrfToken},
-  hooks: {...colocatedHooks},
+  hooks,
 })
 
 // Show progress bar on live navigation and form submits
