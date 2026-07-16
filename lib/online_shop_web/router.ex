@@ -13,6 +13,10 @@ defmodule OnlineShopWeb.Router do
     plug :fetch_current_scope_for_user
   end
 
+  pipeline :seller_only do
+    plug :require_seller_user
+  end
+
   pipeline :api do
     plug :accepts, ["json"]
   end
@@ -57,6 +61,21 @@ defmodule OnlineShopWeb.Router do
     end
 
     post "/users/update-password", UserSessionController, :update_password
+  end
+
+  scope "/", OnlineShopWeb do
+    pipe_through [:browser, :require_authenticated_user, :seller_only]
+
+    live_session :require_authenticated_user_and_seller,
+      on_mount: [
+        {OnlineShopWeb.UserAuth, :require_authenticated},
+        {OnlineShopWeb.UserAuth, :require_seller}
+      ] do
+      live "/items", ItemLive.Index, :index
+      live "/items/new", ItemLive.Form, :new
+      live "/items/:id", ItemLive.Show, :show
+      live "/items/:id/edit", ItemLive.Form, :edit
+    end
   end
 
   scope "/", OnlineShopWeb do

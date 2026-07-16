@@ -179,6 +179,25 @@ defmodule OnlineShopWeb.UserAuth do
 
   defp user_session_topic(token), do: "users_sessions:#{Base.url_encode64(token)}"
 
+  def require_seller_user(conn, _opts) do
+    case conn.assigns.current_scope do
+      %Scope{user: %Accounts.User{role: "Seller"}} ->
+        conn
+
+      %Scope{user: %Accounts.User{}} ->
+        conn
+        |> put_flash(:error, "Seller access required.")
+        |> redirect(to: ~p"/")
+        |> halt()
+
+      _ ->
+        conn
+        |> put_flash(:error, "You must log in to access this page.")
+        |> redirect(to: ~p"/users/log-in")
+        |> halt()
+    end
+  end
+
   @doc """
   Handles mounting and authenticating the current_scope in LiveViews.
 
@@ -242,6 +261,31 @@ defmodule OnlineShopWeb.UserAuth do
         |> Phoenix.LiveView.redirect(to: ~p"/users/log-in")
 
       {:halt, socket}
+    end
+  end
+
+  def on_mount(:require_seller, _params, session, socket) do
+    socket = mount_current_scope(socket, session)
+
+    case socket.assigns.current_scope do
+      %Scope{user: %Accounts.User{role: "Seller"}} ->
+        {:cont, socket}
+
+      %Scope{user: %Accounts.User{}} ->
+        socket =
+          socket
+          |> Phoenix.LiveView.put_flash(:error, "Seller access required.")
+          |> Phoenix.LiveView.redirect(to: ~p"/")
+
+        {:halt, socket}
+
+      _ ->
+        socket =
+          socket
+          |> Phoenix.LiveView.put_flash(:error, "You must log in to access this page.")
+          |> Phoenix.LiveView.redirect(to: ~p"/users/log-in")
+
+        {:halt, socket}
     end
   end
 

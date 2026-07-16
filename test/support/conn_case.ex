@@ -56,6 +56,18 @@ defmodule OnlineShopWeb.ConnCase do
     %{conn: log_in_user(conn, user, opts), user: user, scope: scope}
   end
 
+  def register_and_log_in_seller(%{conn: conn} = context) do
+    user = OnlineShop.AccountsFixtures.user_fixture(%{role: "Seller"})
+    scope = OnlineShop.Accounts.Scope.for_user(user)
+
+    opts =
+      context
+      |> Map.take([:token_authenticated_at])
+      |> Enum.into([])
+
+    %{conn: log_in_user(conn, user, opts), user: user, scope: scope}
+  end
+
   @doc """
   Logs the given `user` into the `conn`.
 
