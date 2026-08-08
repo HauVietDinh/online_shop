@@ -43,7 +43,16 @@ defmodule OnlineShopWeb.Layouts do
         </a>
       </div>
       <div class="flex-none">
-        <ul class="flex flex-column px-1 space-x-4 items-center">
+        <ul class="flex flex-wrap px-1 gap-2 items-center">
+          <li>
+            <.link navigate={~p"/"} class="btn btn-ghost">Home</.link>
+          </li>
+          <li :if={@current_scope && @current_scope.user}>
+            <.link navigate={~p"/cart"} class="btn btn-ghost">
+              <.icon name="hero-shopping-cart" class="size-4" />
+              <span class="ml-1">Cart</span>
+            </.link>
+          </li>
           <li>
             <a href="https://phoenixframework.org/" class="btn btn-ghost">Website</a>
           </li>
@@ -53,17 +62,12 @@ defmodule OnlineShopWeb.Layouts do
           <li>
             <.theme_toggle />
           </li>
-          <li>
-            <a href="https://hexdocs.pm/phoenix/overview.html" class="btn btn-primary">
-              Get Started <span aria-hidden="true">&rarr;</span>
-            </a>
-          </li>
         </ul>
       </div>
     </header>
 
     <main class="px-4 py-20 sm:px-6 lg:px-8">
-      <div class="mx-auto max-w-2xl space-y-4">
+      <div class="mx-auto max-w-6xl space-y-4">
         {render_slot(@inner_block)}
       </div>
     </main>

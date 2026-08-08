@@ -58,9 +58,14 @@ defmodule OnlineShopWeb.Router do
       on_mount: [{OnlineShopWeb.UserAuth, :require_authenticated}] do
       live "/users/settings", UserLive.Settings, :edit
       live "/users/settings/confirm-email/:token", UserLive.Settings, :confirm_email
+      live "/cart", OnlineShopWeb.CartLive, :index
     end
 
     post "/users/update-password", UserSessionController, :update_password
+    post "/cart/add", CartController, :add
+    post "/cart/update", CartController, :update
+    post "/cart/remove", CartController, :remove
+    post "/cart/apply_voucher", CartController, :apply_voucher
   end
 
   scope "/", OnlineShopWeb do
